@@ -2,11 +2,9 @@ const dotenv = require("dotenv");
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
-// const userRoute = require("./routes/users");
 const authRoute = require("./routes/auth");
-// const postRoute = require("./routes/posts");
-// const roomRoute = require("./routes/rooms");
-// const messageRoute = require("./routes/messages");
+const roomRoute = require("./routes/room");
+const messageRoute = require("./routes/message");
 const router = express.Router();
 const path = require("path");
 
@@ -23,9 +21,8 @@ mongoose.connect(
 app.use(express.json());
 
 app.use("/api/auth", authRoute);
-// app.use("/api/users", userRoute);
-// app.use("/api/conversations", roomRoute);
-// app.use("/api/messages", messageRoute);
+app.use("/api/rooms", roomRoute);
+app.use("/api/messages", messageRoute);
 
 app.listen(8080, () => {
   console.log("Backend server is running!");

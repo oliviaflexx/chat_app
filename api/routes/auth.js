@@ -17,7 +17,9 @@ router.post("/register", async (req, res) => {
     });
     console.log(newUser)
     //save user and respond
-    const user = await newUser.save();
+    const user = await newUser.save(function (err) {
+      if (err) console.log(err); // Mod on _id not allowed on { name: 'city',
+    });
     console.log("worked")
     res.status(200).json(user);
   } catch (err) {
