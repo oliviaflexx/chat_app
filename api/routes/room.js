@@ -1,11 +1,13 @@
 const router = require("express").Router();
 const Room = require("../models/Room");
 const Message = require("../models/Message");
+const User = require("../models/User");
 //new room
 
 router.post("/", async (req, res) => {
-  await Message.deleteMany({});
-  await Room.deleteMany({});
+  // await Message.deleteMany({});
+  // await Room.deleteMany({});
+  // await User.deleteMany({});
   const newRoom = new Room({
     topic: req.body.topic,
   });

@@ -3,6 +3,7 @@ import { AuthContext } from "../context/authContext";
 import { SocketContext } from "../context/socketContext";
 import axios from "axios";
 import Message from "../components/Message";
+import { to_Decrypt, to_Encrypt } from "../secret.js";
 
 export default function Messenger() {
   const socket = useContext(SocketContext);
@@ -16,53 +17,22 @@ export default function Messenger() {
   const scrollRef = useRef();
   const blue = { color: "blue" };
 
+  // GET NEW MESSAGE  
   useEffect(() => {
-    console.log("BEFORE", messages);
+
     socket.on("message", function(data) {
-      //decypt the message
-      // const ans = to_Decrypt(data.text, data.username);
-      // dispatchProcess(false, ans, data.text);
-      // console.log(ans);
-      console.log("MESSAGE", data);
-      // const {userId, username, text} = data;
-   
+
       const socketMessage = {
         senderId: data.userId,
         senderUsername: data.username,
-        text: data.text
+        text: to_Decrypt(data.text)
       };
+
       setMessages([...messages, socketMessage]);
-      console.log("AFTER", messages);
+  
     });
   }, [socket, messages]);
 
-
-
-//   useEffect(() => {
-//     socket.current = io("ws://localhost:8900");
-//     socket.current.on("getMessage", (data) => {
-//       setArrivalMessage({
-//         sender: data.senderId,
-//         text: data.text,
-//         createdAt: Date.now(),
-//       });
-//     });
-//   }, []);
-
-//   useEffect(() => {
-//     arrivalMessage &&
-//       currentRoom?.members.includes(arrivalMessage.sender) &&
-//       setMessages((prev) => [...prev, arrivalMessage]);
-//   }, [arrivalMessage, currentRoom]);
-
-//   useEffect(() => {
-//     socket.current.emit("addUser", user._id);
-//     socket.current.on("getUsers", (users) => {
-//       setOnlineUsers(
-//         user.followings.filter((f) => users.some((u) => u.userId === f))
-//       );
-//     });
-//   }, [user]);
 
 // GET ALL ROOMS
   useEffect(() => {
@@ -82,7 +52,15 @@ export default function Messenger() {
     const getMessages = async () => {
       try {
         const res = await axios.get("api/messages/" + currentRoom?._id);
-        setMessages(res.data);
+
+        const decryp_messages = res.data.map(function(message) {
+          let obj = {...message};
+          const decryp_message = to_Decrypt(message.text);
+          obj.text = decryp_message;
+          return obj;
+        });
+
+        setMessages([...decryp_messages]);
       } catch (err) {
         console.log(err);
       }
@@ -92,44 +70,38 @@ export default function Messenger() {
   }, [currentRoom]);
 
 
+  // SEND NEW MESSAGE
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const message = {
       senderId: user._id,
       senderUsername: user.username,
-      text: newMessage,
+      text: to_Encrypt(newMessage),
       roomId: currentRoom._id,
     };
 
-    // const receiverId = currentRoom.members.find(
-    //   (member) => member !== user._id
-    // );
-
-    // socket.current.emit("sendMessage", {
-    //   senderId: user._id,
-    //   receiverId,
-    //   text: newMessage,
-    // });
-
     if (message !== "") {
-      //encrypt the message here
-      // const ans = to_Encrypt(text);
-      socket.emit("chat", newMessage);
+      socket.emit("chat", message);
       setNewMessage("");
-      console.log("SEND MESSAGE", message);
+
+      try {
+        const res = await axios.post("api/messages", message);
+
+        res.data.text = to_Decrypt(res.data.text);
+        setMessages([...messages, res.data]);
+      } catch (err) {
+        console.log(err);
+      }
+
     }
 
-    try {
-      const res = await axios.post("api/messages", message);
-      setMessages([...messages, res.data]);
-      console.log("NEW MESSAGES", messages)
-    } catch (err) {
-      console.log(err);
-    }
   };
 
+  // CREATE NEW ROOM
   const handleSubmitRoom = async (e) => {
       e.preventDefault();
+
       const room = {
         topic: newRoom
       };
@@ -139,10 +111,11 @@ export default function Messenger() {
         setRooms([...rooms, res.data]);
         setNewRoom("");
         setCurrentRoom(res.data);
+
         const username = user.username;
         const topic = currentRoom.topic;
         socket.emit("joinRoom", { username, topic });
-        console.log("JOIN ROOM");
+
       } catch (err) {
         console.log(err);
       }
@@ -150,11 +123,10 @@ export default function Messenger() {
 
   function joinRoom(room) {
     setCurrentRoom(room);
-    console.log(currentRoom);
     const username = user.username;
     const topic = room.topic;
     socket.emit("joinRoom", { username, topic });
-    console.log("JOIN ROOM");
+
   }
 
   const handleEnter = ([e, selectedFunction]) => {
@@ -170,9 +142,7 @@ export default function Messenger() {
   return (
     <>
       <div className="messenger">
-        <button onClick={tester}>
-          Click me
-        </button>
+        <h1>{user.username}</h1>
         <div className="chatMenu">
           <div className="chatMenuWrapper">
             <input
