@@ -13,6 +13,7 @@ import {
 import { useContext } from "react";
 import { AuthContext } from "./context/authContext";
 import Messenger from "./pages/Messenger";
+import './App.css';
 
 function App() {
   const { user } = useContext(AuthContext);

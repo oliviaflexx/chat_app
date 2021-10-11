@@ -5,9 +5,9 @@ export default function Message({ message, own }) {
     <div className={own ? "message own" : "message"}>
       <div className="messageTop">
         <p className="messageText">{message.text}</p>
+        <p className="messageSide">{format(message.createdAt)}</p>
       </div>
-      <div className="messageBottom">{format(message.createdAt)}</div>
-      <p className="messageText">{message.senderUsername}</p>
+      <p className="messageSender">{message.senderUsername}</p>
     </div>
   );
 }

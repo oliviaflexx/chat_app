@@ -4,6 +4,10 @@ import { SocketContext } from "../context/socketContext";
 import axios from "axios";
 import Message from "../components/Message";
 import { to_Decrypt, to_Encrypt } from "../secret.js";
+import { Drawer } from "@mui/material";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import SendIcon from "@mui/icons-material/Send";
+import AddIcon from "@mui/icons-material/Add";
 
 export default function Messenger() {
   const socket = useContext(SocketContext);
@@ -15,8 +19,24 @@ export default function Messenger() {
 
   const { user } = useContext(AuthContext);
   const scrollRef = useRef();
-  const blue = { color: "blue" };
 
+  const [state, setState] = useState({
+    top: false,
+    left: false,
+    bottom: false,
+    right: false,
+  });
+
+  const toggleDrawer = (anchor, open) => (event) => {
+    if (
+      event.type === "keydown" &&
+      (event.key === "Tab" || event.key === "Shift")
+    ) {
+      return;
+    }
+
+    setState({ ...state, [anchor]: open });
+  };
   // GET NEW MESSAGE  
   useEffect(() => {
 
@@ -106,18 +126,19 @@ export default function Messenger() {
         topic: newRoom
       };
 
-      try {
-        const res = await axios.post("api/rooms", room);
-        setRooms([...rooms, res.data]);
-        setNewRoom("");
-        setCurrentRoom(res.data);
+      if (newRoom.replace(/\s/g, "").length) {
+        try {
+          const res = await axios.post("api/rooms", room);
+          setRooms([...rooms, res.data]);
+          setNewRoom("");
+          setCurrentRoom(res.data);
 
-        const username = user.username;
-        const topic = currentRoom.topic;
-        socket.emit("joinRoom", { username, topic });
-
-      } catch (err) {
-        console.log(err);
+          const username = user.username;
+          const topic = currentRoom.topic;
+          socket.emit("joinRoom", { username, topic });
+        } catch (err) {
+          console.log(err);
+        }
       }
   };
 
@@ -140,64 +161,70 @@ export default function Messenger() {
   }, [messages]);
 
   return (
-    <>
-      <div className="messenger">
-        <h1>{user.username}</h1>
-        <div className="chatMenu">
-          <div className="chatMenuWrapper">
-            <input
-              type="text"
-              className="chatMessageInput"
-              placeholder="New Room Topic"
-              onChange={(e) => setNewRoom(e.target.value)}
-              onKeyPress={(e) => handleEnter([e, handleSubmitRoom])}
-              value={newRoom}
-            ></input>
-            <button className="" onClick={handleSubmitRoom}>
-              Create New Room
-            </button>
-            {rooms.map((room) => (
-              <div onClick={() => joinRoom(room)}>
-                <p style={blue}>{room.topic}</p>
-              </div>
-            ))}
-          </div>
+    <div className="main">
+      <button className="toggler" onClick={toggleDrawer("left", true)}>
+        <ArrowForwardIosIcon /> Rooms
+      </button>
+      <Drawer
+        sx={{
+          alignItems: "center",
+        }}
+        anchor={"left"}
+        open={state["left"]}
+        onClose={toggleDrawer("left", false)}
+      >
+        <div className="chatRoomInput">
+          <input
+            type="text"
+            placeholder="Create New Room Topic"
+            onChange={(e) => setNewRoom(e.target.value)}
+            onKeyPress={(e) => handleEnter([e, handleSubmitRoom])}
+            value={newRoom}
+          ></input>
+          <button className="addRoom" onClick={handleSubmitRoom}>
+            <AddIcon/>
+          </button>
         </div>
-        <div className="chatBox">
-          <div className="chatBoxWrapper">
-            {currentRoom ? (
-              <>
-                <div className="chatBoxTop">
-                  {messages.map((message) => (
-                    <div ref={scrollRef}>
-                      <Message
-                        message={message}
-                        own={message.senderId === user._id}
-                      />
-                    </div>
-                  ))}
-                </div>
-                <div className="chatBoxBottom">
-                  <textarea
-                    className="chatMessageInput"
-                    placeholder="write something..."
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    onKeyPress={(e) => handleEnter([e, handleSubmit])}
-                    value={newMessage}
-                  ></textarea>
-                  <button className="chatSubmitButton" onClick={handleSubmit}>
-                    Send
-                  </button>
-                </div>
-              </>
-            ) : (
-              <span className="noConversationText">
-                Open a room to start a chat.
-              </span>
-            )}
+        {rooms.map((room) => (
+          <div className="rooms" onClick={() => joinRoom(room)}>
+            <p>{room.topic}</p>
           </div>
-        </div>
+        ))}
+      </Drawer>
+      <div className="roomBox">
+        {currentRoom ? (
+          <>
+            <h1 className="roomTitle">{currentRoom.topic}</h1>
+            <div className="chatBoxTop">
+              {messages.map((message) => (
+                <div ref={scrollRef}>
+                  <Message
+                    message={message}
+                    own={message.senderId === user._id}
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="roomBoxBottom">
+              <textarea
+                className="chatMessageInput"
+                placeholder="write something..."
+                onClick={() => scrollRef.current?.scrollIntoView({ behavior: "smooth" })}
+                onChange={(e) => setNewMessage(e.target.value)}
+                onKeyPress={(e) => handleEnter([e, handleSubmit])}
+                value={newMessage}
+              ></textarea>
+              <button className="chatSubmitButton" onClick={handleSubmit}>
+                <SendIcon/>
+              </button>
+            </div>
+          </>
+        ) : (
+          <span className="noConversationText">
+            Open a room to start a chat.
+          </span>
+        )}
       </div>
-    </>
+    </div>
   );
 }
