@@ -46,12 +46,22 @@ button,
 }
 body {
     font-family: 'Rubik', sans-serif;
+    background-color: #ECF9FD;
 }
+
+:root {
+    --button-color: linear-gradient(90deg, #F72585 0%, #B5179E 100%);
+    --message-own-color: linear-gradient(90deg, #e0b1ff 0%, #a65aff 100%);
+    --message-other-color: linear-gradient(90deg, #c4ceff 0%, #5acdf0 100%);
+}
+
+
 .message {
     position: relative;
     flex-direction: column;
     /* margin: 15px; */
     display: flex;
+    align-items: flex-start;
 }
 
 .message.own {
@@ -59,7 +69,8 @@ body {
 }
 
 .message.own .messageTop {
-    background: linear-gradient(90deg, rgba(226,169,235,0.5018382352941176) 0%, rgba(218,90,237,0.4150035014005602) 100%);
+    /* background: linear-gradient(90deg, rgba(226,169,235,0.5018382352941176) 0%, rgba(218,90,237,0.4150035014005602) 100%); */
+    background: var(--message-own-color);
 }
 
 .messageTop {
@@ -67,7 +78,8 @@ body {
     border-top-right-radius: 15px;
     border-bottom-right-radius: 15px;
     border-bottom-left-radius: 0px;
-    background: linear-gradient(90deg, rgba(100, 230, 182, 0.479) 0%, rgba(29, 253, 175, 0.575) 50%, rgba(1, 244, 159, 0.562) 100%);
+    /* background: linear-gradient(90deg, rgba(100, 230, 182, 0.479) 0%, rgba(29, 253, 175, 0.575) 50%, rgba(1, 244, 159, 0.562) 100%); */
+    background: var(--message-other-color);
     height: fit-content;
     width: fit-content;
     font-size: 20px;
@@ -101,6 +113,7 @@ p.messageText {
 
 div.main {
     margin: 20px;
+    text-align: center;
 }
 
 div.chatRoomInput {
@@ -120,7 +133,8 @@ button.addRoom {
     margin-top: 10px;
     padding: 10px;
     border-radius: 10px;
-    background: linear-gradient(90deg, rgba(249,154,81,1) 0%, rgba(253,126,29,1) 50%, rgba(246,107,0,1) 100%);
+    /* background: linear-gradient(90deg, rgba(249,154,81,1) 0%, rgba(253,126,29,1) 50%, rgba(246,107,0,1) 100%); */
+    background: var(--button-color);
     border-style: none;
     font-size: 20px;
     cursor: pointer;
@@ -133,7 +147,11 @@ button.addRoom {
     width: 300px;
     border-bottom-right-radius: 10px;
     border-top-right-radius: 10px;
+    background-color: #E6C5FC;
 }
+
+
+
 
 div.rooms {
     border-bottom: #0000003b solid thin;
@@ -167,7 +185,8 @@ textarea.chatMessageInput {
 button.chatSubmitButton {
     padding: 10px;
     border-radius: 10px;
-    background: linear-gradient(90deg, rgba(249,154,81,1) 0%, rgba(253,126,29,1) 50%, rgba(246,107,0,1) 100%);
+    /* background: linear-gradient(90deg, rgba(249,154,81,1) 0%, rgba(253,126,29,1) 50%, rgba(246,107,0,1) 100%); */
+    background: var(--button-color);
     border-style: none;
     margin-left: 10px;
     cursor: pointer;
@@ -193,4 +212,17 @@ h1.roomTitle {
 div.chatBoxTop {
     margin-bottom: 50px;
 
+}
+
+h1#logout {
+    text-align: center;
+}
+
+a {
+    text-align: center;
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
 }

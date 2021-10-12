@@ -1,17 +1,11 @@
-import { useContext, useEffect } from "react";
-import { AuthContext } from "../context/authContext";
 import {Link} from "react-router-dom";
 
 export default function Logout() {
-  const { dispatch } = useContext(AuthContext);
-  
-  useEffect(() => {
-    dispatch({ type: "LOGOUT" });
-  },)
 
   return (
-  <div>Successfully logged out
+    <div className="main">
+      <h1 id="logout">Sorry to see you go!</h1>
       <Link to="/login">Login</Link>
-  </div>
+    </div>
   );
 }

@@ -3,11 +3,14 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import reportWebVitals from "./reportWebVitals";
 import { AuthContextProvider } from "./context/authContext";
+import { SocketProvider } from "./context/socketContext";
 
 ReactDOM.render(
   <React.StrictMode>
     <AuthContextProvider>
+              <SocketProvider>
       <App />
+              </SocketProvider>
     </AuthContextProvider>
   </React.StrictMode>,
   document.getElementById("root")

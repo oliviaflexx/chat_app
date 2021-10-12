@@ -35,6 +35,7 @@ app.use("/api/messages", messageRoute);
 
 
 const io = require("socket.io")(http);
+
 app.use(cors());
 
 //initializing the socket io connection

@@ -3,6 +3,7 @@ import { AuthContext } from "../context/authContext";
 import { SocketContext } from "../context/socketContext";
 import axios from "axios";
 import Message from "../components/Message";
+import { Link } from "react-router-dom";
 import { to_Decrypt, to_Encrypt } from "../secret.js";
 import { Drawer } from "@mui/material";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
@@ -10,6 +11,7 @@ import SendIcon from "@mui/icons-material/Send";
 import AddIcon from "@mui/icons-material/Add";
 
 export default function Messenger() {
+  const { dispatch } = useContext(AuthContext);
   const socket = useContext(SocketContext);
   const [rooms, setRooms] = useState([]);
   const [currentRoom, setCurrentRoom] = useState(null);
@@ -86,7 +88,6 @@ export default function Messenger() {
       }
     };
     getMessages();
-    console.log(currentRoom);
   }, [currentRoom]);
 
 
@@ -162,13 +163,16 @@ export default function Messenger() {
 
   return (
     <div className="main">
-      <button className="toggler" onClick={toggleDrawer("left", true)}>
-        <ArrowForwardIosIcon /> Rooms
-      </button>
+      <nav>
+        <button className="toggler" onClick={toggleDrawer("left", true)}>
+          <ArrowForwardIosIcon /> Rooms
+        </button>
+        <Link to="/logout" onClick={() => dispatch({ type: "LOGOUT" })}>
+          Logout
+        </Link>
+      </nav>
+
       <Drawer
-        sx={{
-          alignItems: "center",
-        }}
         anchor={"left"}
         open={state["left"]}
         onClose={toggleDrawer("left", false)}
@@ -182,11 +186,11 @@ export default function Messenger() {
             value={newRoom}
           ></input>
           <button className="addRoom" onClick={handleSubmitRoom}>
-            <AddIcon/>
+            <AddIcon />
           </button>
         </div>
         {rooms.map((room) => (
-          <div className="rooms" onClick={() => joinRoom(room)}>
+          <div key={room._id} className="rooms" onClick={() => joinRoom(room)}>
             <p>{room.topic}</p>
           </div>
         ))}
@@ -197,7 +201,7 @@ export default function Messenger() {
             <h1 className="roomTitle">{currentRoom.topic}</h1>
             <div className="chatBoxTop">
               {messages.map((message) => (
-                <div ref={scrollRef}>
+                <div key={message._id} ref={scrollRef}>
                   <Message
                     message={message}
                     own={message.senderId === user._id}
@@ -209,13 +213,15 @@ export default function Messenger() {
               <textarea
                 className="chatMessageInput"
                 placeholder="write something..."
-                onClick={() => scrollRef.current?.scrollIntoView({ behavior: "smooth" })}
+                onClick={() =>
+                  scrollRef.current?.scrollIntoView({ behavior: "smooth" })
+                }
                 onChange={(e) => setNewMessage(e.target.value)}
                 onKeyPress={(e) => handleEnter([e, handleSubmit])}
                 value={newMessage}
               ></textarea>
               <button className="chatSubmitButton" onClick={handleSubmit}>
-                <SendIcon/>
+                <SendIcon />
               </button>
             </div>
           </>
