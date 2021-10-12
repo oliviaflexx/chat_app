@@ -10,20 +10,29 @@ router.post("/register", async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
-    //create new user
-    const newUser = new User({
-      username: req.body.username,
-      password: hashedPassword,
-    });
-    console.log(newUser)
-    //save user and respond
-    const user = await newUser.save(function (err) {
-      if (err) console.log(err); // Mod on _id not allowed on { name: 'city',
-    });
-    console.log("worked")
-    res.status(200).json(user);
+    const oldUser = await User.findOne({ username: req.body.username });
+
+    if (oldUser) {
+      res.status(404).json("username taken");
+    }
+
+    else {
+      //create new user
+      const newUser = new User({
+        username: req.body.username,
+        password: hashedPassword,
+      });
+      console.log(newUser);
+      //save user and respond
+      const user = await newUser.save(function (err) {
+        if (err) console.log(err);
+      });
+      console.log("worked");
+      res.status(200).json(user);
+    }
+
   } catch (err) {
-    console.log("didn't work")
+    console.log(err)
     res.status(500).json(err)
   }
 });

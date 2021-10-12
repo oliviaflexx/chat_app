@@ -226,3 +226,30 @@ nav {
     display: flex;
     justify-content: space-between;
 }
+
+form.loginBox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+form.loginBox input {
+    margin: 20px;
+    height: 40px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+div.auth {
+    margin-top: 20vh;
+}
+
+button.loginButton {
+    padding: 10px;
+    border-radius: 10px;
+    background: var(--button-color);
+    border-style: none;
+    margin-bottom: 20px;
+    cursor: pointer;
+    color: white;
+}

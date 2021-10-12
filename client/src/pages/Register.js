@@ -1,13 +1,15 @@
 import axios from "axios";
-import { useRef, useState } from "react";
-import { useHistory } from "react-router";
+import { useRef, useState, useContext } from "react";
+import { Link } from "react-router-dom";
+import { loginCall } from "../apiCalls";
+import { AuthContext } from "../context/authContext";
 
 export default function Register() {
   const username = useRef();
   const password = useRef();
   const passwordAgain = useRef();
-  const history = useHistory();
   const [error, setError] = useState("");
+  const { dispatch } = useContext(AuthContext);
 
   const handleClick = async (e) => {
     e.preventDefault();
@@ -22,44 +24,55 @@ export default function Register() {
       };
       try {
         await axios.post("api/auth/register", user);
-        history.push("/login");
+        loginCall(
+          {
+            username: username.current.value,
+            password: password.current.value,
+          },
+          dispatch
+        );
       } catch (err) {
         console.log(err);
+        setError(true)
       }
     }
   };
 
   return (
-    <>
-    <div>{error}</div>
-      <form className="loginBox" onSubmit={handleClick}>
-        <input
-          placeholder="Username"
-          required
-          ref={username}
-          className="loginInput"
-        />
-        <input
-          placeholder="Password"
-          required
-          ref={password}
-          className="loginInput"
-          type="password"
-          minLength="6"
-        />
-        <input
-          placeholder="Password Again"
-          required
-          ref={passwordAgain}
-          className="loginInput"
-          type="password"
-          minLength="6"
-        />
-        <button className="loginButton" type="submit">
-          Sign Up
-        </button>
-        <button className="loginRegisterButton">Log into Account</button>
-      </form>
-    </>
+    <div className="main">
+      <div>{error ? "Username already taken": ""}</div>
+      <div className="row">
+        <div className="col-12 auth">
+          <form className="loginBox" onSubmit={handleClick}>
+            <input
+              placeholder="Username"
+              required
+              ref={username}
+              className="loginInput"
+            />
+            <input
+              placeholder="Password"
+              required
+              ref={password}
+              className="loginInput"
+              type="password"
+              minLength="6"
+            />
+            <input
+              placeholder="Password Again"
+              required
+              ref={passwordAgain}
+              className="loginInput"
+              type="password"
+              minLength="6"
+            />
+            <button className="loginButton" type="submit">
+              Sign Up
+            </button>
+            <Link to="login">Already have an account?</Link>
+          </form>
+        </div>
+      </div>
+    </div>
   );
 }
